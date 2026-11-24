@@ -1,0 +1,22 @@
+# Render Blueprint: backend only (FastAPI + sqlite3). Frontend stays on Vercel.
+services:
+  - type: web
+    name: crm-knowledge-assistant-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: LLM_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_API_KEY
+        sync: false          # set in Render dashboard, never in git
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DEMO_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false          # your Vercel URL, e.g. https://crm-assistant.vercel.app
