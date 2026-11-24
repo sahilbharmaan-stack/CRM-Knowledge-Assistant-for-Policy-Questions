@@ -1,13 +1,30 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/dist",
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "{backend/**,data/**,schema.sql}",
-      "maxDuration": 30
+  "services": {
+    "crm-knowledge-assistant-api": {
+      "root": ".",
+      "framework": "fastapi",
+      "entrypoint": "backend.main:app",
+      "buildCommand": "pip install -r requirements.txt",
+      "functions": {
+        "backend/main.py": {
+          "includeFiles": "{backend/**,data/**,schema.sql}",
+          "maxDuration": 30
+        }
+      }
+    },
+    "frontend": {
+      "root": "frontend",
+      "framework": "vite"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
+    {
+      "source": "/api/(.*)",
+      "destination": { "service": "crm-knowledge-assistant-api" }
+    },
+    {
+      "source": "/(.*)",
+      "destination": { "service": "frontend" }
+    }
   ]
 }

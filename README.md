@@ -63,13 +63,18 @@ The Ask a question workspace includes ready-to-use prompts grouped into Refunds 
 
 After a successful sign-in, the browser attempts to play a short welcome message using its built-in speech synthesis. A **Welcome voice** control in the top bar lets users replay it. Voice availability and playback depend on the browser and device speech settings; no audio file or external voice service is required.
 
-## Deployment (frontend on Vercel, backend on Render)
-1. Render: New > Blueprint from this repo (`render.yaml`). Set `GEMINI_API_KEY`, `DEMO_PASSWORD`,
-   `CORS_ORIGINS=<your vercel url>`.
-2. Vercel: import repo, set `VITE_API_URL=<render url>`. Build is defined in `vercel.json`.
-3. Before a demo open `<render url>/api/health` to wake the free service (30-60 s).
-Known limitation: free Render sleeps and its disk resets on restart. The app recreates the DB, users and
-policy index automatically; earlier queries and reviews are lost. Next step: managed Postgres (approved fallback).
+## Deployment (frontend and API on Vercel)
+Import the repository into Vercel. `vercel.json` configures a Vite frontend service and a FastAPI
+service in one project; `/api/*` routes to the API and other paths route to the frontend. Set
+`JWT_SECRET`, `ADMIN_USERNAME`, and `ADMIN_PASSWORD` in Vercel's project environment variables before
+deploying. Use a unique administrator password (at least 10 characters) and a long random JWT secret.
+The default LLM provider is `mock`; to enable Groq, set `LLM_PROVIDER=groq`,
+`LLM_MODEL=llama-3.3-70b-versatile`, and `GROQ_API_KEY` in Vercel. SQLite uses Vercel's temporary
+filesystem, so data may reset when functions restart; use a managed database for durable production data.
+
+Alternatively, deploy the API using the included `render.yaml` and deploy only the frontend to Vercel.
+For that split setup, set `VITE_API_URL` to the Render service URL and configure `CORS_ORIGINS` on Render
+with the Vercel site URL.
 
 ## Assumptions, limitations, next steps
 - Keyword topic classifier and TF-IDF retrieval (no embeddings). Next: embeddings and reranking.
